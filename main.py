@@ -46,3 +46,35 @@ dt_tweet_cnt.fillna(0, inplace=True)
 dt_tweet_cnt = dt_tweet_cnt.reindex(range(0,24), axis=0, fill_value=0)
 dt_tweet_cnt = dt_tweet_cnt.reindex(range(0,60), axis=1, fill_value=0).astype(int)
 print(dt_tweet_cnt.iloc[:10,:9])
+
+# готовимся показать несколько графиков в одном фрейме
+fig, ax = plt.subplots(2, 1, figsize=(24,12))
+
+#  перебираем оба датасета по одному элементу
+for i,d in enumerate([jb_tweet_cnt,dt_tweet_cnt]):
+    # получаем значения минут и часов для разметки осей
+    labels = d.applymap(lambda v: str(v) if v == d.values.max() else '')
+    # формируем тепловую карту
+    sns.heatmap(d,
+                cmap="viridis",  # тема оформления
+                annot=labels, # разметку осей берём из переменной labels
+                annot_kws={'fontsize':11},  # размер шрифта для подписей
+                fmt='',          # говорим, что с метками надо работать как со строками
+                square=True,     # квадратные ячейки
+                vmax=40,         # максимальное
+                vmin=0,          # и минимальное значение твитов в ячейке
+                linewidth=0.01,  # добавляем разлиновку сеткой
+                linecolor="#222",# цвет сетки
+                ax=ax[i],        # значение каждой клетки в тепловой карте берём в соответствии с датасетом
+               )
+# подписываем оси
+ax[0].set_title('@JoeBiden')
+ax[1].set_title('@realDonaldTrump')
+ax[0].set_ylabel('Распределение по часам')
+ax[1].set_ylabel('Распределение по часам')
+ax[0].set_xlabel('')
+ax[1].set_xlabel('Распределение по минутам')
+
+# сохраняем результат в файл final.png
+plt.tight_layout()
+plt.savefig('final.png', dpi=120)
